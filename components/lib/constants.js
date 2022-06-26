@@ -1,3 +1,3 @@
 import RealEstateCoin from './RealEstateCoin.json'
-export const RealEstateAddress ='0x8Ce97b04B2a1f26E7470644A67729C7C36f3B8Bb'
+export const RealEstateAddress ='0xcEB5C10A0352Ab4025Dc2820b3b99e4232870B5C'
 export const realestateAbi = RealEstateCoin.abi

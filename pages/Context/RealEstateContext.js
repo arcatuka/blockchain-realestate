@@ -31,7 +31,28 @@ export const RealEstateProvider =({children}) =>{
         error: assetsDataError,
         isLoading: assetsDataIsLoading,
       } = useMoralisQuery('Assets')
-    
+
+
+      const getBalance = async () => {
+        try {
+          if (!isAuthenticated || !currentAccount) return
+          const options = {
+            contractAddress: RealEstateAddress,
+            functionName: 'balanceOf',
+            abi: realestateAbi,
+            params: {
+              account: currentAccount
+            },
+        }
+        if (isWeb3Enabled) {
+            const response = await Moralis.executeFunction(options)
+            console.log(response.toString())
+            setBalance(response.toString())
+        }
+        } catch (error) {
+          console.log(error)
+        }
+    }
     
     useEffect(() =>{
         ;(async()=>{
@@ -43,7 +64,7 @@ export const RealEstateProvider =({children}) =>{
                 setCurrentAccount(account)
             }
         })() 
-    },[isAuthenticated, user, username])
+    },[isAuthenticated, user, username, currentAccount, getBalance])
 
     
     useEffect(() =>{
@@ -71,54 +92,40 @@ export const RealEstateProvider =({children}) =>{
             console.log('No user')
         }
     }
+    
+    // const connectWallet = async () => {
+    //     await enableWeb3()
+    //     await authenticate()
+    //   }
 
-    const getBalance = async () => {
-        try {
-          if (!isAuthenticated || !currentAccount) return
-          const options = {
-            contractAddress: RealEstateAddress,
-            functionName: 'balanceOf',
-            abi: realestateAbi,
-            params: {
-              account: currentAccount,
-            },
+    const buyTokens = async () => {
+        if (!isAuthenticated) {
+          await authenticate()
         }
-        if (isWeb3Enabled) {
-            const response = await Moralis.executeFunction(options)
-            console.log(response.toString())
-            setBalance(response.toString())
-        }
-        } catch (error) {
-          console.log(error)
-        }
-    }
-    const buyTokens = async ()=>{
-        if(!isAuthenticated)
-        {
-            await authenticate()
-        }
-        const amount = ether.BigNumber.from(tokenAmount)
-        const price = ethers.BigNumber.from('100000000000000') //tinh bang Wei trong smart-contract = 0.0001 eth
+    
+        const amount = ethers.BigNumber.from(tokenAmount)
+        const price = ethers.BigNumber.from('100000000000000')
         const calcPrice = amount.mul(price)
-
+    
+        console.log(RealEstateAddress)
         let options ={
             contractAddress:RealEstateAddress,
             functionName:'mint',
             abi: realestateAbi,
+            msgValue: calcPrice,
             params:{
                 amount,
             },
         }
 
         const transaction = await Moralis.executeFunction(options)
-        const receipt = await transaction.await(4)
-        setIsLoading(false) // khi load abi moi tra ve true
+        const receipt = await transaction.wait(4)
+        setIsLoading(false)
         console.log(receipt)
         setEtherscanLink(
-            'https://rinkeby.etherscan.io/tx${receipt.transactionHash}',
-
-        )
-    }
+      `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
+    )
+  }
     const getAssets = async () => {
         try {
           await enableWeb3()

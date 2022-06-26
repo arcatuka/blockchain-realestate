@@ -26,7 +26,7 @@ const Header = () => {
         menuItem: `flex items-center text-md font-bold cursor-pointer`,
         coins: `ml-[10px]`,
     }
-    const { balance} = useContext(RealEstateContext)
+    const {balance,getBalance} = useContext(RealEstateContext)
 
     const {openModal, isModalOpen, closeModal} = useModal()
 
@@ -35,20 +35,20 @@ const Header = () => {
         <div className={styles.logo}>
           <Image
             src={logo}
-            alt='realestate'
+            alt='real estate'
             height={100}
             width={150}
             className='object-cover'
           />
 
-        </div>
-            <div className={styles.search}>
-            <input
+</div>
+        <div className={styles.search}>
+          <input
             type='text'
             placeholder='Search Your Assets...'
             className={styles.searchInput}
-            />
-        <IoMdSearch fontSize={20} />
+          />
+          <IoMdSearch fontSize={20} />
         </div>
         <div className={styles.menu}>
           <div className={styles.menuItem}>New Releases</div>
@@ -61,7 +61,7 @@ const Header = () => {
               {balance}
               <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal} /> 
+                <BuyModal close={closeModal} />
               </Modal>
             </div>
           ) : (
@@ -69,9 +69,9 @@ const Header = () => {
               className={(styles.balance, styles.menuItem)}
               onClick={openModal}
             >
-              0 AC <FaCoins className={styles.coins} />
+              0 REC <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal}  />
+                <BuyModal close={closeModal} />
               </Modal>
             </div>
           )}
