@@ -14,6 +14,8 @@ const nextConfig = {
       'media4.giphy.com',
       'encrypted-tbn0.gstatic.com',
       '1.bp.blogspot.com',
+      'cafefcdn.com',
+      'cdn.baogiaothong.vn'
     ],
   },
 }

@@ -15,7 +15,7 @@ const Card = ({ item }) => {
   return (
     <div
       className={styles.cardContainer}
-      onClick={() => buyAsset(item.price, item)}
+      onClick={() => buyAsset(item.Price, item)}
     >
       <div className={styles.card}>
         <Image

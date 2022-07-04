@@ -14,7 +14,6 @@ import{
 import 'react-simple-hook-modal/dist/styles.css'
 import BuyModal from './BuyModal'
 
-//const balance="99"
 
 const Header = () => {
     const styles = {
@@ -26,22 +25,20 @@ const Header = () => {
         menuItem: `flex items-center text-md font-bold cursor-pointer`,
         coins: `ml-[10px]`,
     }
-    const {balance,getBalance} = useContext(RealEstateContext)
-
-    const {openModal, isModalOpen, closeModal} = useModal()
-
-    return (
-        <div className={styles.container}>
+    const { balance, buyTokens, getBalance } = useContext(RealEstateContext)
+  const { openModal, isModalOpen, closeModal } = useModal()
+  return (
+    <ModalProvider>
+      <div className={styles.container}>
         <div className={styles.logo}>
           <Image
             src={logo}
-            alt='real estate'
+            alt='amazon'
             height={100}
             width={150}
             className='object-cover'
           />
-
-</div>
+        </div>
         <div className={styles.search}>
           <input
             type='text'
@@ -61,7 +58,7 @@ const Header = () => {
               {balance}
               <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal} />
+                <BuyModal close={closeModal} buyTokens={buyTokens} />
               </Modal>
             </div>
           ) : (
@@ -71,14 +68,15 @@ const Header = () => {
             >
               0 REC <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal} />
+                <BuyModal close={closeModal} buyTokens={buyTokens} />
               </Modal>
             </div>
           )}
           <CgMenuGridO fontSize={30} className={styles.menuItem} />
         </div>
       </div>
-    )
+    </ModalProvider>
+  )
 }
 
 export default Header

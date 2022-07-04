@@ -32,7 +32,7 @@ const BuyModal = ({close}) =>{
         etherscanLink,
         setEtherscanLink,
         buyTokens
-    } = useContext (RealEstateContext)
+    } = useContext(RealEstateContext)
 
     useEffect(() => {
       calculatePrice()
@@ -80,7 +80,7 @@ const BuyModal = ({close}) =>{
               />
             </div>
             <div className={styles.price}>
-            Total Due:{' '}
+            Total Due:{''}
             {tokenAmount && tokenAmount > 0 ? amountDue + 'ETH' : '0 ETH'}
           </div>
           <button
@@ -90,8 +90,8 @@ const BuyModal = ({close}) =>{
               setIsLoading(true)
               buyTokens()
             }}
-            >
-               Buy
+          >
+            Buy
           </button>
           {etherscanLink && (
             <>

@@ -6,17 +6,19 @@ import { realestateAbi, RealEstateAddress } from '../../components/lib/constants
 export const RealEstateContext = createContext()
 
 export const RealEstateProvider =({children}) =>{
-    const [assets, setAssets] = useState([])
-    const [nickname, setNickname] = useState('')
-    const [username, setUsername] = useState('')
-    const [currentAccount, setCurrentAccount] = useState('')
-    const [tokenAmount, setTokenAmount] = useState('')
-    const [amountDue, setAmountDue] = useState('')
-    const [etherscanLink, setEtherscanLink] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [balance, setBalance] = useState('')
+  const [currentAccount, setCurrentAccount] = useState('')
+  const [formattedAccount, setFormattedAccount] = useState('')
+  const [balance, setBalance] = useState('')
+  const [tokenAmount, setTokenAmount] = useState('')
+  const [amountDue, setAmountDue] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [etherscanLink, setEtherscanLink] = useState('')
+  const [nickname, setNickname] = useState('')
+  const [username, setUsername] = useState('')
+  const [assets, setAssets] = useState([])
+  const [recentTransactions, setRecentTransactions] = useState([])
+  const [ownedItems, setOwnedItems] = useState([])
 
-    
     const {
         authenticate,
         isAuthenticated,
@@ -27,12 +29,19 @@ export const RealEstateProvider =({children}) =>{
       } = useMoralis()
 
       const {
+        data: userData,
+        error: userDataError,
+        isLoading: userDataIsLoading,
+      } = useMoralisQuery('_User')
+    
+
+      const {
         data: assetsData,
         error: assetsDataError,
         isLoading: assetsDataIsLoading,
       } = useMoralisQuery('Assets')
 
-
+      
       const getBalance = async () => {
         try {
           if (!isAuthenticated || !currentAccount) return
@@ -41,27 +50,27 @@ export const RealEstateProvider =({children}) =>{
             functionName: 'balanceOf',
             abi: realestateAbi,
             params: {
-              account: currentAccount
+              account: currentAccount,
             },
-        }
-        if (isWeb3Enabled) {
+          }
+          if (isWeb3Enabled) {
             const response = await Moralis.executeFunction(options)
-            console.log(response.toString())
+            //console.log(response.toString())
             setBalance(response.toString())
-        }
+          }
         } catch (error) {
           console.log(error)
         }
-    }
-    
+      }
     useEffect(() =>{
         ;(async()=>{
             if(isAuthenticated){
-                await getBalance()
-                const currentUsername = await user?.get('nickname')
-                setUsername(currentUsername)
-                const account = await user?.get('ethAddress')
-                setCurrentAccount(account)
+              await getBalance()
+              await listenToUpdates()
+              const currentUsername = await user?.get('nickname')
+              setUsername(currentUsername)
+              const account = await user?.get('ethAddress')
+              setCurrentAccount(account)
             }
         })() 
     },[isAuthenticated, user, username, currentAccount, getBalance])
@@ -71,6 +80,8 @@ export const RealEstateProvider =({children}) =>{
         ;(async() =>{
         if(isWeb3Enabled) {
             await getAssets()
+            await getOwnedAssets()
+
         }
     })()
     },[isWeb3Enabled,assetsData,assetsDataIsLoading])
@@ -93,10 +104,35 @@ export const RealEstateProvider =({children}) =>{
         }
     }
     
-    // const connectWallet = async () => {
-    //     await enableWeb3()
-    //     await authenticate()
-    //   }
+    const buyAsset = async (price, asset) => {
+      try {
+        if (!isAuthenticated) return
+  
+        const options = {
+          type: 'erc20',
+          amount: price,
+          receiver: RealEstateAddress,
+          contractAddress: RealEstateAddress,
+        }
+  
+        let transaction = await Moralis.transfer(options)
+        const receipt = await transaction.wait()
+  
+        if (receipt) {
+          const res = userData[0].add('ownedAsset', {
+            ...asset,
+            purchaseDate: Date.now(),
+            etherscanLink: `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
+          })
+  
+          await res.save().then(() => {
+            alert("You've successfully purchased this asset!")
+          })
+        }
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
 
     const buyTokens = async () => {
         if (!isAuthenticated) {
@@ -106,15 +142,15 @@ export const RealEstateProvider =({children}) =>{
         const amount = ethers.BigNumber.from(tokenAmount)
         const price = ethers.BigNumber.from('100000000000000')
         const calcPrice = amount.mul(price)
-    
+        
         console.log(RealEstateAddress)
         let options ={
             contractAddress:RealEstateAddress,
             functionName:'mint',
-            abi: realestateAbi,
+            abi: realestateAbi, 
             msgValue: calcPrice,
             params:{
-                amount,
+                amount, 
             },
         }
 
@@ -126,6 +162,17 @@ export const RealEstateProvider =({children}) =>{
       `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
     )
   }
+
+  const listenToUpdates = async () => {
+    let query = new Moralis.Query('EthTransactions')
+    let subscription = await query.subscribe()
+    subscription.on('update', async object => {
+      console.log('New Transactions')
+      console.log(object)
+      setRecentTransactions([object])
+    })
+  }
+
     const getAssets = async () => {
         try {
           await enableWeb3()
@@ -137,6 +184,23 @@ export const RealEstateProvider =({children}) =>{
           console.log(error)
         }
     }
+
+    const getOwnedAssets = async () => {
+      try {
+        // let query = new Moralis.Query('_User')
+        // let results = await query.find()
+  
+        if (userData[0]) {
+          setOwnedItems(prevItems => [
+            ...prevItems,
+            userData[0].attributes.ownedAsset,
+          ])
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  
 
     return(
         <RealEstateContext.Provider
@@ -158,7 +222,10 @@ export const RealEstateProvider =({children}) =>{
             setEtherscanLink,
             etherscanLink,
             currentAccount,
-            buyTokens
+            buyTokens,
+            buyAsset,
+            recentTransactions,
+            ownedItems,
         }}
         >
             {children}
