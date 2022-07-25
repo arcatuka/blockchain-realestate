@@ -17,15 +17,15 @@ import BuyModal from './BuyModal'
 
 const Header = () => {
     const styles = {
-        container: `h-[60px] w-full flex items-center gap-5 px-16 mb-[50px]`,
-        logo: `flex items-center ml-[150px] cursor-pointer flex-1`,
-        search: `p-[25px] mr-[30px] w-[400px] h-[40px] bg-white rounded-full shadow-lg flex flex items-center border border-black`,
-        searchInput: `bg-transparent focus:outline-nine border-none flex-1 items-center flex`,
-        menu: `flex items-center gap-6`,
-        menuItem: `flex items-center text-md font-bold cursor-pointer`,
-        coins: `ml-[10px]`,
+      container: `h-[60px] w-full flex items-center gap-5 px-16 mb-[50px]`,
+      logo: `flex items-center ml-[150px] cursor-pointer flex-1`,
+      search: `p-[25px] mr-[30px] w-[400px] h-[40px] bg-white rounded-full shadow-lg flex flex items-center border border-black`,
+      searchInput: `bg-transparent focus:outline-nine border-none flex-1 items-center flex`,
+      menu: `flex items-center gap-6`,
+      menuItem: `flex items-center text-md font-bold cursor-pointer`,
+      coins: `ml-[10px]`,
     }
-    const { balance, buyTokens, getBalance } = useContext(RealEstateContext)
+  const { balance } = useContext(RealEstateContext)
   const { openModal, isModalOpen, closeModal } = useModal()
   return (
     <ModalProvider>
@@ -58,7 +58,7 @@ const Header = () => {
               {balance}
               <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal} buyTokens={buyTokens} />
+                <BuyModal close={closeModal} />
               </Modal>
             </div>
           ) : (
@@ -68,7 +68,7 @@ const Header = () => {
             >
               0 REC <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                <BuyModal close={closeModal} buyTokens={buyTokens} />
+                <BuyModal close={closeModal} />
               </Modal>
             </div>
           )}

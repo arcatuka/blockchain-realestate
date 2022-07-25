@@ -7,7 +7,6 @@ export const RealEstateContext = createContext()
 
 export const RealEstateProvider =({children}) =>{
   const [currentAccount, setCurrentAccount] = useState('')
-  const [formattedAccount, setFormattedAccount] = useState('')
   const [balance, setBalance] = useState('')
   const [tokenAmount, setTokenAmount] = useState('')
   const [amountDue, setAmountDue] = useState('')
@@ -55,7 +54,7 @@ export const RealEstateProvider =({children}) =>{
           }
           if (isWeb3Enabled) {
             const response = await Moralis.executeFunction(options)
-            //console.log(response.toString())
+            console.log(response.toString())
             setBalance(response.toString())
           }
         } catch (error) {
@@ -71,8 +70,9 @@ export const RealEstateProvider =({children}) =>{
               setUsername(currentUsername)
               const account = await user?.get('ethAddress')
               setCurrentAccount(account)
+              console.log(balance.toString())
             }
-        })() 
+        })()
     },[isAuthenticated, user, username, currentAccount, getBalance])
 
     
@@ -130,20 +130,23 @@ export const RealEstateProvider =({children}) =>{
           })
         }
       } catch (error) {
+        alert("You've cannot purchased this asset.")
         console.log(error.message)
       }
     }
 
     const buyTokens = async () => {
         if (!isAuthenticated) {
-          await authenticate()
+          await authenticate() 
         }
     
+        await enableWeb3()
         const amount = ethers.BigNumber.from(tokenAmount)
         const price = ethers.BigNumber.from('100000000000000')
         const calcPrice = amount.mul(price)
+        console.log(calcPrice.toString())
+        console.log(amount.toString())
         
-        console.log(RealEstateAddress)
         let options ={
             contractAddress:RealEstateAddress,
             functionName:'mint',
@@ -220,7 +223,7 @@ export const RealEstateProvider =({children}) =>{
             isLoading,
             setIsLoading,
             setEtherscanLink,
-            etherscanLink,
+            etherscanLink,  
             currentAccount,
             buyTokens,
             buyAsset,

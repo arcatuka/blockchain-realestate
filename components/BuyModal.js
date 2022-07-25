@@ -4,8 +4,7 @@ import { RealEstateContext } from "../pages/Context/RealEstateContext";
 import {HashLoader} from 'react-spinners'
 import Link from 'next/link'
 
-
-const BuyModal = ({close}) =>{
+const BuyModal = ({ close }) => {
 
     const styles = {
         container: `h-full w-full flex flex-col `,
@@ -21,7 +20,6 @@ const BuyModal = ({close}) =>{
         etherscan: `w-full h-full flex items-center justify-center text-green-500 text-2xl mt-[20px] font-bold cursor-pointer`,
         success: `w-full h-full flex items-center justify-center text-xl mt-[20px] font-bolder`,
     }
-
     const{
         amountDue,
         setAmountDue,
